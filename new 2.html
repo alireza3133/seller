@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>فرم نظرسنجی حرفه‌ای و کاملاً پویا</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* استایل‌های پایه و فونت */
+        body {
+            font-family: 'Vazirmatn', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        /* انیمیشن بهینه شده برای باز و بسته شدن بخش‌ها */
+        .collapsible {
+            display: grid;
+            grid-template-rows: 0fr; /* شروع در حالت بسته */
+            opacity: 0;
+            overflow: hidden;
+            transition: grid-template-rows 0.4s ease, opacity 0.3s ease, margin-top 0.4s ease;
+            margin-top: 0;
+        }
+
+        .collapsible.show {
+            grid-template-rows: 1fr; /* باز شدن به اندازه محتوای داخلی */
+            opacity: 1;
+            margin-top: 1.5rem; /* فاصله در حالت باز */
+        }
+        
+        /* جلوگیری از پرش محتوا در حین انیمیشن */
+        .collapsible > div {
+            min-height: 0;
+        }
+        
+        /* مخفی کردن پیش‌فرض بخش‌های شرطی با جاوا اسکریپت */
+        .conditional-section, .delivery-specific-option, .item-type-specific-option {
+            display: none;
+        }
+        
+        /* بهبود دسترسی‌پذیری: نمایش حلقه فوکوس فقط برای کاربران کیبورد */
+        :focus-visible {
+            outline: 2px solid #3b82f6;
+            outline-offset: 2px;
+            border-radius: 0.25rem;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen py-12">
+
+    <div class="w-full max-w-3xl mx-auto bg-white p-6 md:p-8 rounded-2xl shadow-xl">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-slate-800">فرم نظرسنجی رضایت فروشنده</h1>
+            <p class="text-slate-500 mt-2">از اینکه وقت خود را برای بهبود خدمات ما صرف می‌کنید، سپاسگزاریم.</p>
+        </header>
+
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label for="itemType" class="block text-md font-semibold text-slate-700 mb-2">نوع کالا:</label>
+                <select id="itemType" class="w-full p-3 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                    <option value="main_warehouse">انبار کالای قابل فروش</option>
+                    <option value="returned" selected>انبار مرجوعی</option>
+                    <option value="sample">نمونه (سمپل)و اینباند ریجکشن</option>
+                </select>
+            </div>
+            <div>
+                <label for="deliveryMethod" class="block text-md font-semibold text-slate-700 mb-2">نحوه ارسال:</label>
+                <select id="deliveryMethod" class="w-full p-3 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition">
+                    <option value="fleet" selected>تهران (ناوگان)</option>
+                    <option value="post">پست</option>
+                    <option value="in_person">حضوری (تهران و شهرستان)</option>
+                </select>
+            </div>
+        </div>
+
+        <form id="surveyForm" class="space-y-6">
+            
+            <fieldset id="primaryQuestionContainer" class="p-6 bg-slate-50 rounded-xl">
+                <legend class="text-lg font-semibold text-slate-800 mb-4">از فرآیند کلی دریافت کالا چقدر رضایت داشتید؟</legend>
+                <div class="flex flex-wrap gap-x-8 gap-y-4">
+                    <label class="flex items-center cursor-pointer"><input type="radio" name="primary_satisfaction" value="5" class="form-radio text-green-500 h-5 w-5"><span class="ms-2 text-slate-700">خیلی زیاد</span></label>
+                    <label class="flex items-center cursor-pointer"><input type="radio" name="primary_satisfaction" value="4" class="form-radio text-lime-500 h-5 w-5"><span class="ms-2 text-slate-700">زیاد</span></label>
+                    <label class="flex items-center cursor-pointer"><input type="radio" name="primary_satisfaction" value="3" class="form-radio text-yellow-500 h-5 w-5"><span class="ms-2 text-slate-700">متوسط</span></label>
+                    <label class="flex items-center cursor-pointer"><input type="radio" name="primary_satisfaction" value="2" class="form-radio text-orange-500 h-5 w-5"><span class="ms-2 text-slate-700">کم</span></label>
+                    <label class="flex items-center cursor-pointer"><input type="radio" name="primary_satisfaction" value="1" class="form-radio text-red-500 h-5 w-5"><span class="ms-2 text-slate-700">خیلی کم</span></label>
+                </div>
+            </fieldset>
+
+            <div id="detailedQuestionsContainer" class="collapsible" aria-hidden="true">
+                <div class="space-y-6">
+                    <hr>
+                    <p class="text-center text-slate-600 font-medium">از اینکه بازخورد خود را با ما در میان می‌گذارید سپاسگزاریم. لطفاً به سوالات زیر پاسخ دهید.</p>
+                    
+                    <fieldset id="returnQuestionContainer" class="p-6 bg-slate-50 rounded-xl conditional-section">
+                        <legend class="text-lg font-semibold text-slate-800 mb-4">الف) از نحوه بررسی کالای مرجوعی چقدر رضایت داشتید؟</legend>
+                        <div class="flex flex-wrap gap-x-6 gap-y-3" data-controls-sub-question="return_sub_questions_container">
+                            <label class="flex items-center cursor-pointer"><input type="radio" name="return_satisfaction" value="5" class="form-radio h-5 w-5"><span class="ms-2 text-gray-700">خیلی زیاد</span></label>
+                            <label class="flex items-center cursor-pointer"><input type="radio" name="return_satisfaction" value="4" class="form-radio h-5 w-5"><span class="ms-2 text-gray-700">زیاد</span></label>
+                            <label class="flex items-center cursor-pointer"><input type="radio" name="return_satisfaction" value="3" class="form-radio h-5 w-5"><span class="ms-2 text-gray-700">متوسط</span></label>
+                            <label class="flex items-center cursor-pointer"><input type="radio" name="return_satisfaction" value="2" class="form-radio h-5 w-5"><span class="ms-2 text-gray-700">کم</span></label>
+                            <label class="flex items-center cursor-pointer"><input type="radio" name="return_satisfaction" value="1" class="form-radio h-5 w-5"><span class="ms-2 text-gray-700">خیلی کم</span></label>
+                        </div>
+                        <div id="return_sub_questions_container" class="collapsible" aria-hidden="true">
+                                <div class="bg-yellow-50 border-r-4 border-yellow-400 rounded-lg p-4">
+                                    <p class="font-semibold mb-3 text-gray-800">کدام موارد در مورد بررسی کالا صدق می‌کند؟</p>
+                                    <div class="space-y-2">
+                                        <label class="flex items-center cursor-pointer"><input type="checkbox" name="return_reason" value="unclear_result" class="form-checkbox rounded"><span class="ms-2 text-gray-700">مستندات و دلایل کارشناسی برای رد یا تایید مرجوعی، قانع‌کننده یا کافی نبود.</span></label>
+                                        <label class="flex items-center cursor-pointer"><input type="checkbox" name="return_reason" value="item_damaged" class="form-checkbox rounded"><span class="ms-2 text-gray-700">کالا آسیب دیده می باشد.</span></label>
+                                        <label class="flex items-center cursor-pointer"><input type="checkbox" name="return_reason" value="item_incomplete" class="form-checkbox rounded"><span class="ms-2 text-gray-700">قسمتی از کالا ارسال نشده .</span></label>
+                                        <label class="flex items-center cursor-pointer"><input type="checkbox" name="return_reason" value="wrong_item" class="form-checkbox rounded"><span class="ms-2 text-gray-700">کالای من عوض شده .</span></label>
+                                        <div class="other-option-wrapper">
+                                            <label class="flex items-center cursor-pointer"><input type="checkbox" name="return_reason" value="other" class="form-checkbox rounded" data-controls-textarea><span class="ms-2 text-gray-700">سایر موارد</span></label>
+                                            <div class="collapsible w-full mt-0!" aria-hidden="true"><textarea name="return_reason_other_text" rows="2" class="w-full p-2 mt-2 border border-gray-300 rounded-lg"></textarea></div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset id="deliveryTimeQuestionContainer" class="p-6 bg-slate-50 rounded-xl conditional-section">
+                        <legend class="text-lg font-semibold text-slate-800 mb-4">ب) از مدت زمان و نحوه تحویل کالا چقدر رضایت داشتید؟</legend>
+                        <div class="flex flex-wrap gap-x-6 gap-y-3" data-controls-sub-question="delivery_time_sub_questions_container">
+                           <label class="flex items-center cursor-pointer"><input type="radio" name="delivery_time_satisfaction" value="5" class="form-radio h-5 w-5"><span class="ms-2 text-gray-700">خیلی زیاد</span></label>
+                           <label class="flex items-center cursor-pointer"><input type="radio" name="delivery_time_satisfaction" value="4" class="form-radio h-5 w-5"><span class="ms-2 text-gray-700">زیاد</span></label>
+                           <label class="flex items-center cursor-pointer"><input type="radio" name="delivery_time_satisfaction" value="3" class="form-radio h-5 w-5"><span class="ms-2 text-gray-700">متوسط</span></label>
+                           <label class="flex items-center cursor-pointer"><input type="radio" name="delivery_time_satisfaction" value="2" class="form-radio h-5 w-5"><span class="ms-2 text-gray-700">کم</span></label>
+                           <label class="flex items-center cursor-pointer"><input type="radio" name="delivery_time_satisfaction" value="1" class="form-radio h-5 w-5"><span class="ms-2 text-gray-700">خیلی کم</span></label>
+                        </div>
+                        <div id="delivery_time_sub_questions_container" class="collapsible" aria-hidden="true">
+                           <div class="bg-yellow-50 border-r-4 border-yellow-400 rounded-lg p-4">
+                                <p class="font-semibold mb-3 text-gray-800">کدام موارد باعث نارضایتی شما از زمان و نحوه تحویل شد؟</p>
+                                <div class="space-y-2">
+                                    <label class="flex items-center cursor-pointer"><input type="checkbox" name="delivery_time_reason" value="longer_than_promised" class="form-checkbox rounded"><span class="ms-2 text-gray-700">بازه نمایش داده شده برای انتخاب زمان تحویل طولانی بود.</span></label>
+                                    <label class="flex items-center cursor-pointer"><input type="checkbox" name="delivery_time_reason" value="not_on_time" class="form-checkbox rounded"><span class="ms-2 text-gray-700">تحویل در بازه انتخاب شده صورت نگرفت.</span></label>
+                                    <label class="flex items-center cursor-pointer delivery-specific-option" data-method="fleet"><input type="checkbox" name="delivery_time_reason" value="driver_behavior" class="form-checkbox rounded"><span class="ms-2 text-gray-700">برخورد راننده نامناسب بود.</span></label>
+                                    <label class="flex items-center cursor-pointer"><input type="checkbox" name="delivery_time_reason" value="bad_packaging" class="form-checkbox rounded"><span class="ms-2 text-gray-700">بسته بندی کالا مناسب نبود.</span></label>
+                                    <label class="flex items-center cursor-pointer item-type-specific-option" data-item-types="main_warehouse sample"><input type="checkbox" name="delivery_time_reason" value="item_damaged" class="form-checkbox rounded"><span class="ms-2 text-gray-700">کالا آسیب دیده بود.</span></label>
+                                    
+                                    <div class="other-option-wrapper">
+                                        <label class="flex items-center cursor-pointer"><input type="checkbox" name="delivery_time_reason" value="other" class="form-checkbox rounded" data-controls-textarea><span class="ms-2 text-gray-700">سایر موارد</span></label>
+                                        <div class="collapsible w-full mt-0!" aria-hidden="true"><textarea name="delivery_time_reason_other_text" rows="2" class="w-full p-2 mt-2 border border-gray-300 rounded-lg"></textarea></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset id="inPersonQuestionContainer" class="p-6 bg-slate-50 rounded-xl conditional-section">
+                        <legend class="text-lg font-semibold text-slate-800 mb-4">د) از تجربه تحویل حضوری چقدر رضایت داشتید؟</legend>
+                          <div class="flex flex-wrap gap-x-6 gap-y-3" data-controls-sub-question="in_person_sub_questions_container">
+                           <label class="flex items-center cursor-pointer"><input type="radio" name="in_person_satisfaction" value="5" class="form-radio h-5 w-5"><span class="ms-2 text-gray-700">خیلی زیاد</span></label>
+                           <label class="flex items-center cursor-pointer"><input type="radio" name="in_person_satisfaction" value="4" class="form-radio h-5 w-5"><span class="ms-2 text-gray-700">زیاد</span></label>
+                           <label class="flex items-center cursor-pointer"><input type="radio" name="in_person_satisfaction" value="3" class="form-radio h-5 w-5"><span class="ms-2 text-gray-700">متوسط</span></label>
+                           <label class="flex items-center cursor-pointer"><input type="radio" name="in_person_satisfaction" value="2" class="form-radio h-5 w-5"><span class="ms-2 text-gray-700">کم</span></label>
+                           <label class="flex items-center cursor-pointer"><input type="radio" name="in_person_satisfaction" value="1" class="form-radio h-5 w-5"><span class="ms-2 text-gray-700">خیلی کم</span></label>
+                        </div>
+                        <div id="in_person_sub_questions_container" class="collapsible" aria-hidden="true">
+                            <div class="bg-yellow-50 border-r-4 border-yellow-400 rounded-lg p-4">
+                                <p class="font-semibold mb-3 text-gray-800">کدام موارد در تجربه شما تاثیر منفی داشت؟</p>
+                                <div class="space-y-2">
+                                    <label class="flex items-center cursor-pointer"><input type="checkbox" name="in_person_reason" value="bad_location_access" class="form-checkbox rounded"><span class="ms-2 text-gray-700">دسترسی محل تحویل نامناسب بود.</span></label>
+                                    <label class="flex items-center cursor-pointer"><input type="checkbox" name="in_person_reason" value="bad_location_environment" class="form-checkbox rounded"><span class="ms-2 text-gray-700">محیط محل تحویل کالا نامناسب بود.</span></label>                                   
+                                    <label class="flex items-center cursor-pointer"><input type="checkbox" name="in_person_reason" value="staff_behavior" class="form-checkbox rounded"><span class="ms-2 text-gray-700">برخورد کارشناس تحویل غیرحرفه‌ای بود.</span></label>
+                                    <label class="flex items-center cursor-pointer"><input type="checkbox" name="in_person_reason" value="long_wait" class="form-checkbox rounded"><span class="ms-2 text-gray-700">زمان انتظار در محل تحویل طولانی بود.</span></label>
+                                    <label class="flex items-center cursor-pointer"><input type="checkbox" name="in_person_reason" value="no_parking" class="form-checkbox rounded"><span class="ms-2 text-gray-700">محل مناسب جهت پارک خودرو وجود نداشت .</span></label>
+                                    <label class="flex items-center cursor-pointer"><input type="checkbox" name="in_person_reason" value="complex_process" class="form-checkbox rounded"><span class="ms-2 text-gray-700">پروسه تحویل کالا پیچیده می باشد .</span></label>
+                                    <div class="other-option-wrapper">
+                                        <label class="flex items-center cursor-pointer"><input type="checkbox" name="in_person_reason" value="other" class="form-checkbox rounded" data-controls-textarea><span class="ms-2 text-gray-700">سایر موارد</span></label>
+                                        <div class="collapsible w-full mt-0!" aria-hidden="true"><textarea name="in_person_reason_other_text" rows="2" class="w-full p-2 mt-2 border border-gray-300 rounded-lg"></textarea></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+                </div>
+            </div>
+                    
+            <div id="positiveFeedbackContainer" class="collapsible" aria-hidden="true">
+                <fieldset class="p-6 bg-green-50 border-r-4 border-green-500 rounded-lg">
+                    <legend class="block text-lg font-semibold text-slate-800 mb-2">از رضایت شما خرسندیم! 🚀</legend>
+                    <label for="positive_feedback" class="text-slate-600 mb-4 block">اگر پیشنهاد یا نکته‌ای برای ما دارید، مشتاقانه می‌شنویم. (اختیاری)</label>
+                    <textarea id="positive_feedback" name="positive_feedback" rows="4" class="w-full p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 transition" placeholder="..."></textarea>
+                </fieldset>
+            </div>
+
+            <div id="submitButtonContainer" class="collapsible" aria-hidden="true">
+                <div class="mt-4 text-center">
+                    <button type="submit" class="w-full md:w-auto bg-blue-600 text-white font-bold py-3 px-12 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-transform transform hover:scale-105">
+                        ثبت نهایی نظرسنجی
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- انتخاب‌گرهای اصلی ---
+            const form = document.getElementById('surveyForm');
+            const itemTypeSelect = document.getElementById('itemType');
+            const deliveryMethodSelect = document.getElementById('deliveryMethod');
+            
+            // --- توابع کمکی برای مدیریت نمایش ---
+            const setCollapsibleVisibility = (element, show) => {
+                if (!element) return;
+                const isVisible = element.classList.contains('show');
+                if (isVisible === show) return;
+                element.classList.toggle('show', show);
+                element.setAttribute('aria-hidden', !show);
+            };
+
+            const setElementDisplay = (element, show) => {
+                if (element) {
+                    element.style.display = show ? 'block' : 'none';
+                }
+            };
+            
+            // --- تابع اصلی برای مدیریت کل UI فرم ---
+            const updateFormState = () => {
+                const primaryRating = Number(form.querySelector('input[name="primary_satisfaction"]:checked')?.value || 0);
+                const deliveryMethod = deliveryMethodSelect.value;
+                const itemType = itemTypeSelect.value;
+
+                const showDetailed = primaryRating > 0 && primaryRating <= 2;
+                const showPositive = primaryRating >= 3;
+                const showSubmit = primaryRating > 0;
+
+                // ۱. مدیریت بخش‌های اصلی (سوالات جزئی، بازخورد مثبت، دکمه ثبت)
+                setCollapsibleVisibility(document.getElementById('detailedQuestionsContainer'), showDetailed);
+                setCollapsibleVisibility(document.getElementById('positiveFeedbackContainer'), showPositive);
+                setCollapsibleVisibility(document.getElementById('submitButtonContainer'), showSubmit);
+                
+                // اگر بخش سوالات جزئی نمایش داده نمی‌شود، کار تمام است
+                if (!showDetailed) {
+                     // مخفی کردن تمام بخش‌های داخلی برای جلوگیری از نمایش ناخواسته
+                    document.querySelectorAll('.conditional-section, .delivery-specific-option, .item-type-specific-option').forEach(el => {
+                        el.style.display = 'none';
+                    });
+                    return;
+                }
+
+                // ۲. مدیریت نمایش سوالات شرطی اصلی
+                setElementDisplay(document.getElementById('returnQuestionContainer'), itemType === 'returned');
+                setElementDisplay(document.getElementById('deliveryTimeQuestionContainer'), true); // همیشه نمایش داده شود
+                setElementDisplay(document.getElementById('inPersonQuestionContainer'), deliveryMethod === 'in_person');
+
+                // ۳. مدیریت گزینه‌های شرطی داخلی بر اساس نحوه ارسال
+                form.querySelectorAll('.delivery-specific-option').forEach(el => {
+                    const methods = el.dataset.method.split(' ');
+                    el.style.display = methods.includes(deliveryMethod) ? 'flex' : 'none';
+                });
+
+                // مدیریت گزینه‌های شرطی داخلی بر اساس نوع کالا
+                form.querySelectorAll('.item-type-specific-option').forEach(el => {
+                    const allowedTypes = el.dataset.itemTypes.split(' ');
+                    el.style.display = allowedTypes.includes(itemType) ? 'flex' : 'none';
+                });
+
+                // ۴. مدیریت نمایش تمام زیر-سوالات (بخش چک‌باکس‌ها)
+                form.querySelectorAll('[data-controls-sub-question]').forEach(radioGroupContainer => {
+                    const ratingValue = radioGroupContainer.querySelector('input[type="radio"]:checked')?.value;
+                    const subQuestionContainer = document.getElementById(radioGroupContainer.dataset.controlsSubQuestion);
+                    setCollapsibleVisibility(subQuestionContainer, ratingValue && Number(ratingValue) <= 2);
+                });
+
+                // ۵. مدیریت نمایش فیلد متنی "سایر موارد"
+                form.querySelectorAll('input[type="checkbox"][data-controls-textarea]').forEach(checkbox => {
+                    const wrapper = checkbox.closest('.other-option-wrapper');
+                    const textareaContainer = wrapper?.querySelector('.collapsible');
+                    setCollapsibleVisibility(textareaContainer, checkbox.checked);
+                });
+            };
+
+            // --- راه‌اندازی و اتصال رویدادها ---
+            form.addEventListener('change', updateFormState);
+            itemTypeSelect.addEventListener('change', updateFormState);
+            deliveryMethodSelect.addEventListener('change', updateFormState);
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                console.log('فرم برای ارسال آماده است.');
+                const formData = new FormData(form);
+                
+                // افزودن مقادیر select ها به formData چون خارج از تگ form هستند
+                formData.append('item_type', itemTypeSelect.value);
+                formData.append('delivery_method', deliveryMethodSelect.value);
+
+                for (let [key, value] of formData.entries()) {
+                    console.log(key, ':', value);
+                }
+                alert('نظرسنجی شما با موفقیت ثبت شد. (نتیجه در کنسول نمایش داده شده است)');
+            });
+            
+            // --- اجرای اولیه ---
+            updateFormState(); // فراخوانی اولیه برای تنظیم حالت فرم بر اساس مقادیر پیش‌فرض
+        });
+    </script>
+</body>
+</html>
